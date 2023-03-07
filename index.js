@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const port = process.env.PORT || 5000;
 
@@ -29,10 +29,24 @@ client.connect((err) => {
 async function run() {
   try {
     const productsCollection = client.db("moonTech").collection("products");
-
+    //Products getting
     app.get("/products", async (req, res) => {
       const query = {};
       const result = await productsCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    //product posting
+    app.post("/product", async (req, res) => {
+      const user = req.body;
+      const result = await productsCollection.insertOne(user);
+      res.send(result);
+    });
+    //product deleting
+    app.delete("/product/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const result = await productsCollection.deleteOne(filter);
       res.send(result);
     });
   } finally {
